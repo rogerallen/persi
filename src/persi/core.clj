@@ -67,29 +67,27 @@
   filenames. To find something like *.txt you would pass in
   \".*\\\\.txt\" "
   [dir re]
-  (do
-    (println "ppp-" dir "-" re )
-    (.getName ;; -->
-     (last
-      (sort-by #(count (.getName %))
-               (.list (clojure.java.io/file dir)
-                      (wildcard-filter (java.util.regex.Pattern/compile re))))))))
-  
+  (last
+   (sort-by #(count %)
+            (.list (clojure.java.io/file dir)
+                   (wildcard-filter (java.util.regex.Pattern/compile re))))))
+;;(dir-list-longest-name-re "test" "persi-test-dir*")
+
+;;(swank.core/break)
 (defn safe-old-dir-file
   [cur-dir-name]
-FIXME -- here is where we go wrong... need to be more awake
-  (let [last-dir-re (str cur-dir-name "*")
+  (let [;;_ (swank.core/break)
         cur-dir-file (java.io.File. cur-dir-name)
+        cur-dir-filename (.getName cur-dir-file)
+        last-dir-re (str cur-dir-filename "*") ;; don't include path to dir
         cur-dir-parent (.getParent cur-dir-file)
         cur-dir-parent (if (nil? cur-dir-parent)
-                         (java.io.File. ".")
+                         "." ;(java.io.File. ".")
                          cur-dir-parent)
-        _     (swank.core/break)
         longest-dir-name (dir-list-longest-name-re cur-dir-parent last-dir-re)
-        safe-dir-name (str longest-dir-name "_o")]
-    (swank.core/break)
-    (if (not safe-dir-name)
-      (.rnameTo (java.io.File. safe-dir-name)))))
+        ;; FIXME -- this probably isn't kosher
+        safe-dir-name (str cur-dir-parent "/" longest-dir-name "_o")]
+    (java.io.File. safe-dir-name)))
 
 (defn- init-dir!
   [dir-name keep-cur-dir]
@@ -105,7 +103,7 @@ FIXME -- here is where we go wrong... need to be more awake
     (when (not keep-cur-dir)
       (if dir-exists
         ;; rename old directory
-        (.java.io.File.renameTo (safe-old-dir-file dir-name)))
+        (.renameTo dir-file (safe-old-dir-file dir-name)))
       ;; create new dir
       (.mkdirs dir-file)
       ;;(.close dir-file) ;; ???
@@ -137,7 +135,7 @@ FIXME -- here is where we go wrong... need to be more awake
   (if (and (not (nil? @persi-file-name))
            (dirty?))
     (do
-      (to-file (java.io.File. @persi-file-name) @persi-events)
+      (to-file (java.io.File. @persi-dir-name @persi-file-name) @persi-events)
       (clean!)
       true)
     false))
@@ -146,7 +144,7 @@ FIXME -- here is where we go wrong... need to be more awake
   "Open an existing file and read in the events"
   [file-name]
   (swap! persi-file-name (fn [x] file-name))
-  (swap! persi-events (fn [x] (from-file (java.io.File. file-name))))
+  (swap! persi-events (fn [x] (from-file (java.io.File. @persi-dir-name file-name))))
   (clean!)
   nil)
 
@@ -161,7 +159,7 @@ FIXME -- here is where we go wrong... need to be more awake
 
 (defn get-file-name
   []
-  (str @persi-dir-name "/" @persi-file-name)) ;; FIXME!
+  @persi-file-name)
 
 ;; ======================================================================
 ;; manipulating events
@@ -175,6 +173,14 @@ FIXME -- here is where we go wrong... need to be more awake
   (println "event count:    " (count @persi-events)))
 
 (comment
-  (init! "test/persi-test-dir" false)
-
+  (init! "persi_testy" false)
+  (persi.core/new)
+  (persi.core/add-event! false)
+  (events)
+  (save)
+  (persi.core/new)
+  (persi.core/add-event! true)
+  (save)
+  (get-file-name)
+  (summary)
   )
