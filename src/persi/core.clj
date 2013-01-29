@@ -1,30 +1,17 @@
+;; ======================================================================
+;; basic event persistence
 (ns persi.core
   (:require [clojure.java.io :as cio]))
 
 ;; ======================================================================
-;; basic event persistence
-;;
-;; directory/file(s)/event(s)/event
-;; 
-;; Usage:
-;;   (require '[persi.core :as persi])
-;;   (mp/new)    ;; start recording to a new file in the default
-;;   (mp/pause)  ;; pause recording
-;;   (mp/record) ;; restart recording
-;;   (mp/save)   ;; save data to file
-;;   (mp/open "my-saved-events.clj") ;; read events from saved file
-;;   (count (mp/partition-by-timestamp)) ;; how many snippets do you have?
-;;   (nth (mp/partition-by-timestamp) 2) ;; grab 3rd snippet
-;; ======================================================================
-
-;; ======================================================================
 ;; state atoms
-(def persi-dir-name  (atom "persi_files"))
+(def persi-default-dir-name "persi_files") 
+(def persi-dir-name  (atom nil))
 (def persi-file-name (atom nil))
 (def persi-dirty     (atom false))
 (def persi-events    (atom []))
 
-;; ==================g====================================================
+;; ======================================================================
 (defn- to-file
   "Save a clojure form to a file"
   [#^java.io.File file form]
@@ -49,9 +36,6 @@
 (defn- dirty! []
   (swap! persi-dirty (fn [x] true)))
 
-(defn dirty? []
-  @persi-dirty)
-
 (defn- clean! []
   (swap! persi-dirty (fn [x] false)))
 
@@ -62,7 +46,7 @@
   (reify java.io.FilenameFilter
     (accept [_ dir name] (not (nil? (re-find re name))))))
 
-(defn dir-list-longest-name-re
+(defn- dir-list-longest-name-re
   "Given a directory and a regex, return a sorted seq of matching
   filenames. To find something like *.txt you would pass in
   \".*\\\\.txt\" "
@@ -74,7 +58,7 @@
 ;;(dir-list-longest-name-re "test" "persi-test-dir*")
 
 ;;(swank.core/break)
-(defn safe-old-dir-file
+(defn- safe-old-dir-file
   [cur-dir-name]
   (let [;;_ (swank.core/break)
         cur-dir-file (java.io.File. cur-dir-name)
@@ -97,10 +81,10 @@
     ;; keep-cur dir-exists
     ;;   0         0        create new directory
     ;;   0         1        rename old dir, create new dir
-    ;;   1         0        assert
+    ;;   1         0        create new directory
     ;;   1         1        no-op 
-    (assert (not (and keep-cur-dir (not dir-exists))))
-    (when (not keep-cur-dir)
+    (when (or (not keep-cur-dir)
+              (and keep-cur-dir (not dir-exists)))
       (if dir-exists
         ;; rename old directory
         (.renameTo dir-file (safe-old-dir-file dir-name)))
@@ -110,10 +94,13 @@
       (swap! persi-dir-name (fn [x] dir-name)))))
 
 ;; ======================================================================
-;; public api fillows
+;; public api follows
+(defn dirty? []
+  @persi-dirty)
+
 (defn init!
   "Initialize the persi directory."
-  ([] (init! @persi-dir-name true))
+  ([] (init! persi-default-dir-name true))
   ([dir-name keep-cur-dir]
      (init-dir! dir-name keep-cur-dir)
      (swap! persi-file-name (fn [x] nil)) ;; FIXME?
@@ -161,8 +148,9 @@
   []
   @persi-file-name)
 
-;; ======================================================================
-;; manipulating events
+(defn get-dir-name
+  []
+  @persi-dir-name)
 
 (defn summary
   "summarize the current situation"
@@ -172,6 +160,7 @@
   (println "persi-file-name:" @persi-file-name)
   (println "event count:    " (count @persi-events)))
 
+;; ======================================================================
 (comment
   (init! "persi_testy" false)
   (persi.core/new)
@@ -183,4 +172,5 @@
   (save)
   (get-file-name)
   (summary)
+  (init!)
   )
