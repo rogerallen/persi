@@ -7,77 +7,77 @@
   (:require [persi.core :as persi]))
 
 (defn test-init []
-  (persi/init! "test/persi_test_dir" false)
-  (persi/new))
+  (is (= nil (persi/init! "test/persi_test_dir" false)))
+  (persi/new!))
 
 (defn test-init2 []
-  (persi/init! "persi_files_test" false)
-  (persi/new))
+  (is (= nil (persi/init! "persi_files_test" false)))
+  (persi/new!))
 
-(deftest test-single-event
-  (testing "test-single-event"
+(deftest test-single-append
+  (testing "test-single-append"
     (test-init)
-    (persi/add-event! true)
-    (is (= (persi/events) [true]))))
+    (persi/append! true)
+    (is (= (persi/get-list) [true]))))
 
-(deftest test-save-single-event
-  (testing "test-save-single-event"
-    (test-init)
-    (let [cur-file-name (persi/get-file-name)]
-          (persi/add-event! true)
-          (persi/save)
-          (persi/new)
-          (persi/open cur-file-name)
-          (is (= (persi/events) [true])))))
-
-(deftest test-save-several-events
-  (testing "test-save-several-events"
+(deftest test-save-single-append
+  (testing "test-save-single-append"
     (test-init)
     (let [cur-file-name (persi/get-file-name)]
-          (persi/add-event! 1)
-          (persi/add-event! 2)
-          (persi/add-event! 3)
-          (persi/save)
-          (persi/save) ;; redundant 
-          (persi/new)
-          (persi/add-event! false)
-          (persi/add-event! true)
-          (persi/add-event! false)
-          (is (= (persi/events) [false true false]))
-          (persi/open cur-file-name)
-          (is (= (persi/events) [1 2 3])))))
+          (persi/append! true)
+          (is (= true (persi/save!)))
+          (persi/new!)
+          (is (= nil (persi/open! cur-file-name)))
+          (is (= (persi/get-list) [true])))))
+
+(deftest test-save-several-appends
+  (testing "test-save-several-appends"
+    (test-init)
+    (let [cur-file-name (persi/get-file-name)]
+          (persi/append! 1)
+          (persi/append! 2)
+          (persi/append! 3)
+          (is (= true (persi/save!)))
+          (is (= false (persi/save!))) ;; redundant 
+          (persi/new!)
+          (persi/append! false)
+          (persi/append! true)
+          (persi/append! false)
+          (is (= (persi/get-list) [false true false]))
+          (is (= nil (persi/open! cur-file-name)))
+          (is (= (persi/get-list) [1 2 3])))))
 
 (deftest test-default-mode
   (testing "test-default-mode"
     (persi/init!)
-    (persi/new)
-    (persi/add-event! true)
+    (persi/new!)
+    (persi/append! true)
     (persi/summary) ;; just for coverage?
-    (is (= "persi_files" (persi/get-dir-name)))
-    (is (= (persi/events) [true]))))
+    (is (= persi/persi-default-dir-name (persi/get-dir-name)))
+    (is (= (persi/get-list) [true]))))
 
 (deftest test-default-mode-again
   (testing "test-default-mode-again"
     (persi/init!)
-    (persi/new)
-    (persi/add-event! 3)
-    (is (= (persi/events) [3]))))
+    (persi/new!)
+    (persi/append! 3)
+    (is (= (persi/get-list) [3]))))
 
-(deftest test-single-event2
-  (testing "test-single-event2"
+(deftest test-single-append2
+  (testing "test-single-append2"
     (test-init2)
-    (persi/add-event! true)
-    (is (= (persi/events) [true]))))
+    (persi/append! true)
+    (is (= (persi/get-list) [true]))))
 
-(deftest test-save-single-event2
-  (testing "test-save-single-event"
+(deftest test-save-single-append2
+  (testing "test-save-single-append"
     (test-init2)
     (let [cur-file-name (persi/get-file-name)]
-          (persi/add-event! true)
-          (persi/save)
-          (persi/new)
-          (persi/open cur-file-name)
-          (is (= (persi/events) [true])))))
+          (persi/append! true)
+          (is (= true (persi/save!)))
+          (persi/new!)
+          (persi/open! cur-file-name)
+          (is (= (persi/get-list) [true])))))
 
 
 

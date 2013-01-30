@@ -3,7 +3,7 @@
 A Clojure library designed to save data to files in a directory.  I
 want to use this to keep a simple record of midi keyboard events.  I
 might be reinventing the wheel, but I also consider this a learning
-excercise.
+exercise.
 
 ## Usage
 
