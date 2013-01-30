@@ -58,7 +58,7 @@
   [dir re]
   (last
    (sort-by #(count %)
-            (.list (clojure.java.io/file dir)
+            (.list (cio/file dir)
                    (wildcard-filter (java.util.regex.Pattern/compile re))))))
 ;;(dir-list-longest-name-re "test" "persi-test-dir*")
 
@@ -162,7 +162,7 @@
 (defn insert!
   "add k and v to persi-map"
   [k v]
-  (swap! persi-list assoc k v)
+  (swap! persi-map assoc k v)
   (dirty!))
 
 (defn get-list

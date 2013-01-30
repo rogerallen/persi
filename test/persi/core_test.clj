@@ -52,15 +52,20 @@
     (persi/init!)
     (persi/new!)
     (persi/append! true)
+    (persi/insert! :a 1)
     (persi/summary) ;; just for coverage?
+    (is (= true (persi/save!)))
     (is (= persi/persi-default-dir-name (persi/get-dir-name)))
-    (is (= (persi/get-list) [true]))))
+    (is (= (persi/get-list) [true]))
+    (is (= (persi/get-map) {:a 1}))))
 
 (deftest test-default-mode-again
   (testing "test-default-mode-again"
     (persi/init!)
-    (persi/new!)
+    (is (= persi/persi-default-dir-name (persi/get-dir-name)))    
+    (persi/new! "hi_there.clj")
     (persi/append! 3)
+    (is (= true (persi/save!)))
     (is (= (persi/get-list) [3]))))
 
 (deftest test-single-append2
@@ -79,6 +84,18 @@
           (persi/open! cur-file-name)
           (is (= (persi/get-list) [true])))))
 
+;; these tests cannot run in parallel
+(deftest test-serially
+  (test-single-append)
+  (test-save-single-append)
+  (test-save-several-appends)
+  (test-default-mode)
+  (test-default-mode-again)
+  (test-single-append2)
+  (test-save-single-append2))
+
+(defn test-ns-hook []
+  (test-serially))
 
 
 
