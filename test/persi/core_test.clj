@@ -68,6 +68,14 @@
     (is (= true (persi/save!)))
     (is (= (persi/get-list) [3]))))
 
+(deftest test-default-mode-no-init
+  (testing "test-default-mode-no-init"
+    (is (= persi/persi-default-dir-name (persi/get-dir-name)))
+    (persi/new! "hey_you.clj")
+    (persi/append! 5)
+    (is (= true (persi/save!)))
+    (is (= (persi/get-list) [5]))))
+
 (deftest test-single-append2
   (testing "test-single-append2"
     (test-init2)
@@ -91,6 +99,7 @@
   (test-save-several-appends)
   (test-default-mode)
   (test-default-mode-again)
+  (test-default-mode-no-init)
   (test-single-append2)
   (test-save-single-append2))
 
