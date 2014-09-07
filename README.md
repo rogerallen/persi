@@ -22,7 +22,7 @@ file open at a time.
 ;; append an event
 (persi/append! {:note 60 :velocity 97})
 ;; use the map for other notes
-(persi/insert! :comment "I would like to make note of this")
+(persi/set! :comment "I would like to make note of this")
 ;; save the file
 (persi/save!)
 
