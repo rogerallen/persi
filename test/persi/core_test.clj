@@ -4,7 +4,7 @@
 ;;
 (ns persi.core-test
   (:use clojure.test)
-  (:require [persi.core :as persi]))
+  (:require [persi.persi :as persi]))
 
 (defn test-init []
   (is (= nil (persi/init! "test/persi_test_dir" false)))
@@ -38,7 +38,7 @@
           (persi/append! 2)
           (persi/append! 3)
           (is (= true (persi/save!)))
-          (is (= false (persi/save!))) ;; redundant 
+          (is (= false (persi/save!))) ;; redundant
           (persi/new!)
           (persi/append! false)
           (persi/append! true)
@@ -52,7 +52,7 @@
     (persi/init!)
     (persi/new!)
     (persi/append! true)
-    (persi/insert! :a 1)
+    (persi/set! :a 1)
     (persi/summary) ;; just for coverage?
     (is (= true (persi/save!)))
     (is (= persi/persi-default-dir-name (persi/get-dir-name)))
@@ -62,7 +62,7 @@
 (deftest test-default-mode-again
   (testing "test-default-mode-again"
     (persi/init!)
-    (is (= persi/persi-default-dir-name (persi/get-dir-name)))    
+    (is (= persi/persi-default-dir-name (persi/get-dir-name)))
     (persi/new! "hi_there.clj")
     (persi/append! 3)
     (is (= true (persi/save!)))
@@ -105,6 +105,3 @@
 
 (defn test-ns-hook []
   (test-serially))
-
-
-
