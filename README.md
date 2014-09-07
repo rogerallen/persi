@@ -35,7 +35,7 @@ file open at a time.
 ## API
 
 * Adding data to the current persi file
-  * *append!* [e]* - append e to the end of the list
+  * *append! [e]* - append e to the end of the list
   * *set! [k v]* - add k and v to the map
 * Getter information about the current persi file
   * *get-list []*
