@@ -59,7 +59,7 @@
   \".*\\\\.txt\" "
   [dir re]
   (last
-   (sort-by #(count %)
+   (sort-by count
             (.list (cio/file dir)
                    (wildcard-filter (java.util.regex.Pattern/compile re))))))
 
@@ -94,9 +94,8 @@
         ;; rename old directory
         (.renameTo dir-file (safe-old-dir-file dir-name)))
       ;; create new dir
-      (.mkdirs dir-file)
-      ;;(.close dir-file) ;; ???
-      (swap! persi-state assoc :dir-name dir-name))))
+      (.mkdirs dir-file))
+    (swap! persi-state assoc :dir-name dir-name)))
 
 ;; ======================================================================
 ;; PUBLIC API
@@ -172,13 +171,13 @@
 (defn append!
   "append e to the end of the persi-list"
   [e]
-  (swap! persi-state (fn [x] (assoc x :list (conj (:list x) e))))
+  (swap! persi-state (fn [x] (update-in x [:list] conj e)))
   (dirty!))
 
 (defn set!
   "add k and v to persi-map"
   [k v]
-  (swap! persi-state (fn [x] (assoc x :map (assoc (:map x) k v))))
+  (swap! persi-state (fn [x] (update-in x [:map] assoc k v)))
   (dirty!))
 
 (defn summary

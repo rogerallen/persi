@@ -14,6 +14,12 @@
   (is (= nil (persi/init! "persi_files_test" false)))
   (persi/new!))
 
+(deftest test-init3 []
+  (is (= nil (persi/init! "test/persi_test_dir" true)))
+  (persi/new!)
+  (is (= (persi/get-dir-name) "test/persi_test_dir"))
+  (is (= false (persi/dirty?))))
+
 (deftest test-single-append
   (testing "test-single-append"
     (test-init)
@@ -101,7 +107,8 @@
   (test-default-mode-again)
   (test-default-mode-no-init)
   (test-single-append2)
-  (test-save-single-append2))
+  (test-save-single-append2)
+  (test-init3))
 
 (defn test-ns-hook []
   (test-serially))

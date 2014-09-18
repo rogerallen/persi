@@ -1,4 +1,4 @@
-(defproject persi "0.2.0"
+(defproject persi "0.2.1"
   :description "A simple, limited persistence library for clojure."
   :url "http://github.com/rogerallen/persi"
   :license {:name "Eclipse Public License"
